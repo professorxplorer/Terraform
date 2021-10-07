@@ -4,7 +4,7 @@
 # .tfstate files
 *.tfstate
 *.tfstate.*
-
+  aws.tf
 # Crash log files
 crash.log
 
