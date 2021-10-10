@@ -72,13 +72,12 @@ resource  "aws_ami_from_instance" "tNginxInstance" {
 
 #Run  new 
 
-
 resource "aws_instance" "NginxInstance-ami" {
-  ami  = "NginxInstance-ami"
+  ami  = aws_ami_from_instance.tNginxInstance.id
   # count =1
   key_name = "PXT"
   instance_type = "t2.micro"
-  security_groups= [ "security_Nginx_port"]
+  security_groups= [aws_security_group.security_Nginxport.id]
   tags= {
     Name = "NginxInstance"
      user_data = <<-EOF
