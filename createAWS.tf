@@ -17,7 +17,7 @@ resource "aws_security_group" "security_Nginxport" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- # outbound from jenkis server
+ # outbound from jenkins server
   egress {
     from_port   = 0
     to_port     = 65535
@@ -26,7 +26,7 @@ resource "aws_security_group" "security_Nginxport" {
   }
 
   tags= {
-    Name = "security_jenkins_port"
+    Name = var.ec2SecurityGroup
   }
 }
 
@@ -65,7 +65,7 @@ resource  "aws_ami_from_instance" "tNginxInstance" {
       ]
 
   tags = {
-      Name = "NginxInstance-ami"
+      Name = var.NginxInstance-ami
   }
 
 }
@@ -86,3 +86,43 @@ resource "aws_instance" "NginxInstance-ami" {
       EOF
   }
 }
+
+
+
+#EC2 Load Balancer
+resource "aws_elb" "nginx" {
+  name               = "nginx-elb"
+  availability_zones = ["us-east-1a"]
+
+##  access_logs {
+  ##  bucket        = "nginx-acces-elb"
+    ##interval      = 60
+ #3 }
+
+  listener {
+    instance_port     = 80
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "HTTP:80/"
+    interval            = 30
+  }
+
+  instances                   = [aws_instance.NginxInstance-ami.id]
+  cross_zone_load_balancing   = true
+  idle_timeout                = 400
+  connection_draining         = true
+  connection_draining_timeout = 400
+
+  tags = {
+    Name = var.terraform-elb
+  }
+}
+
